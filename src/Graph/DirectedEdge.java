@@ -19,7 +19,8 @@ public class DirectedEdge implements Serializable{
     /**
 	 * 
 	 */
-	//private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -9074416579376692922L;
+
 	private final GraphNode startNode;
     private final GraphNode endNode;
     private double length;
@@ -132,6 +133,10 @@ public class DirectedEdge implements Serializable{
 	public String getName() {
 		// TODO Auto-generated method stub
 		return name;
+	}
+	public float getWalkWeight(){
+		float walk_weight = (float) ((this.length/3)*60);
+		return walk_weight;
 	}
 
 }

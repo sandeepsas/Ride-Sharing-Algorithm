@@ -12,7 +12,11 @@ public class GraphNode implements Serializable{
 	/**
 	 * 
 	 */
-	//private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -951013750518377697L;
+	/**
+	 * 
+	 */
+
 	private double lon;
 	private double lat;
 	private long id;

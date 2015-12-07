@@ -1,6 +1,7 @@
 package Trip;
 
 import java.io.BufferedReader;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -15,16 +16,18 @@ import java.util.Map;
 
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
+import org.joda.time.DateTime;
 
 import Graph.GraphNode;
 import Graph.Pair;
+import Trip.TaxiTrip;
 
 public class TripLoader {
 
 	private Map<String, List<Pair<String,String>>> dropOffMap; 
 	private Map<String, Pair<Double,Double>> vertexMap; 
 	private Map<String, String> DTMap; 
-	
+
 	private DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge> gr_t; 
 
 
@@ -52,10 +55,11 @@ public class TripLoader {
 			String[] split_readline = s.split(",");
 			List<Pair<String,String>> drop_list = new ArrayList<Pair<String,String>>();
 			for(int i=1; i<split_readline.length-1;i++){
-				String[] sub_split = split_readline[i].split(",");
-				drop_list.add(new Pair<String,String>(sub_split[0],sub_split[1]));
+				String[] sub_split = split_readline[i].split("->");
+				drop_list.add(new Pair<String,String>(sub_split[0].trim(),sub_split[1].trim()));
 			}
-			dropOffMap.put(split_readline[0], drop_list);
+			String[] key = split_readline[0].split("->");
+			dropOffMap.put(key[0].trim(), drop_list);
 		}
 		bf.close();
 		//Load Vertex Map
@@ -65,8 +69,8 @@ public class TripLoader {
 		while((s=bf.readLine())!=null &&
 				(s.length()!=0) ){
 			String[] split_readline = s.split(",");
-
-			vertexMap.put(split_readline[0], 
+			String key = split_readline[0].trim();
+			vertexMap.put(key, 
 					new Pair<Double, Double>(Double.parseDouble(split_readline[1]),
 							Double.parseDouble(split_readline[2])));
 			listTime.add(new KdTree.XYZPoint(split_readline[0],Double.parseDouble(split_readline[1])
@@ -78,17 +82,19 @@ public class TripLoader {
 		DTMap = new HashMap<String, String>();
 		bf = new BufferedReader(new FileReader("ObjectWarehouse/NYCF_LGA_Node_SP.csv"));
 		s = new String();
+		bf.readLine();// header eliminate
 		while((s=bf.readLine())!=null &&
 				(s.length()!=0) ){
 			String[] split_readline = s.split(",");
-
-			DTMap.put(split_readline[2], split_readline[6]);
+			String key = split_readline[2].trim();
+			String val = split_readline[6].trim();
+			DTMap.put(key,val );
 		}
 
 		bf.close();
 		// Load the Graph
 		//Construct Graph
-		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/DDWGraph.obj"));
+		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/SpeedLimtGraph.obj"));
 		gr_t = new  DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		gr_t =  (DefaultDirectedWeightedGraph<GraphNode, DefaultWeightedEdge>) oos_graph_read.readObject();
 		oos_graph_read.close();
@@ -115,6 +121,50 @@ public class TripLoader {
 		KdTree.XYZPoint elt = near_bys_itr.next();
 
 		return elt;
+
+	}
+
+	public GraphNode nodeIDtoGraphNode(String nodeID) {
+		// TODO Auto-generated method stub
+		Pair<Double,Double> node_pos = vertexMap.get("nodeID");
+		GraphNode node = new GraphNode();
+		node.setId(Long.parseLong(nodeID));
+		node.setLat(node_pos.getL());
+		node.setLon(node_pos.getR());
+		if(this.gr_t.containsVertex(node))
+			System.out.println(node);
+		return node;
+	}
+
+	public List<TaxiTrip> loadTrips(DateTime startTime, DateTime endTime) throws IOException {
+		// TODO Auto-generated method stub
+		List<TaxiTrip> trips = new ArrayList<TaxiTrip>();
+		BufferedReader bf = new BufferedReader(new FileReader("TripData/TripData.csv"));
+		String s = new String();
+		s = bf.readLine();
+		while((s=bf.readLine())!=null &&
+				(s.length()!=0) ){
+			String[] split_readline = s.split(",");
+			DateTime trip_start_time =  Constants.dt_formatter.parseDateTime(split_readline[5]);
+
+			TaxiTrip trip = new TaxiTrip();
+			if(trip_start_time.compareTo(startTime)>0 &&
+					trip_start_time.compareTo(endTime)<0 	){
+				trip = new TaxiTrip(split_readline[0],
+						split_readline[5],
+						split_readline[6],
+						split_readline[7],
+						split_readline[8],
+						split_readline[9],
+						split_readline[10],
+						split_readline[11],
+						split_readline[12],
+						split_readline[13]);
+				trips.add(trip);
+			}
+
+		}
+		return trips;
 
 	}
 
