@@ -6,8 +6,10 @@
 package StartHere;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +31,7 @@ public class CheckTripMergeable {
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
 
+		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips.txt"));
 		// Read Trip between 2013-01-01 08:50:00 and 2013-01-01 08:55:00
 		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-01 08:50:00");
 		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-01 08:55:00");
@@ -47,6 +50,19 @@ public class CheckTripMergeable {
 				}
 			}
 		}
+		//Print Results
+		merge_trips_writer.println("********** Trips Mergeable ********** ");
+		merge_trips_writer.println("************************************* \n");
+		merge_trips_writer.println("************* Time Interval ********* ");
+		merge_trips_writer.println("************************************* ");
+		merge_trips_writer.println("2013-01-01 08:50:00 and 2013-01-01 08:55:00");
+		merge_trips_writer.println("************************************* ");
+		Iterator <Pair<TaxiTrip,TaxiTrip>> merge_list_itr = mergeable_trips.iterator();
+		while(merge_list_itr.hasNext()){
+			Pair<TaxiTrip,TaxiTrip> merge_pair = merge_list_itr.next();
+			merge_trips_writer.println("\n Trip# "+merge_pair.getL()+" and Trip# "+merge_pair.getR());
+		}
+		merge_trips_writer.close();
 	}
 
 	private  static boolean checkMergeable(TaxiTrip trip_A, TaxiTrip trip_B) throws ClassNotFoundException, IOException {
@@ -140,12 +156,10 @@ public class CheckTripMergeable {
 				float driving_time_from_dropoff_B_to_dropoff_A = (float) dsp.getPathLength()*travel_time_correction_ratio;
 				float lhs = driving_time_from_dropoff_B_to_dropoff_A+walking_time_to_dest_B-driving_time_to_dest_B;
 				if(lhs<max_delay_trip_B){
-					System.out.println("MERGEABLE");
 					result = true;
 				}else{
-					System.out.println("NOT - MERGEABLE");
+					result = false;
 				}
-
 			}
 		}
 		return result;

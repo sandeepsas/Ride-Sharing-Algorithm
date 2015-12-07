@@ -85,7 +85,7 @@ public class TripLoader {
 		bf.close();
 		// Load ShortestPath Map
 		DTMap = new HashMap<String, String>();
-		bf = new BufferedReader(new FileReader("ObjectWarehouse/NYCF_LGA_Node_SP.csv"));
+		bf = new BufferedReader(new FileReader("ObjectWarehouse/NYCF_LGA_SP.csv"));
 		s = new String();
 		bf.readLine();// header eliminate
 		while((s=bf.readLine())!=null &&
@@ -131,7 +131,7 @@ public class TripLoader {
 
 	public GraphNode nodeIDtoGraphNode(String nodeID) {
 		// TODO Auto-generated method stub
-		Pair<Double,Double> node_pos = vertexMap.get("nodeID");
+		Pair<Double,Double> node_pos = vertexMap.get(nodeID.trim());
 		GraphNode node = new GraphNode();
 		node.setId(Long.parseLong(nodeID));
 		node.setLat(node_pos.getL());
