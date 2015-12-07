@@ -95,7 +95,7 @@ public class BFSGenerator {
 
 		System.out.println("Serialization started at"+ LocalDateTime.now() );
 
-		ObjectOutputStream oos_graph = new ObjectOutputStream(new FileOutputStream("ObjectWarehouse/WalkLimitGraph.obj"));
+		ObjectOutputStream oos_graph = new ObjectOutputStream(new FileOutputStream("ObjectWarehouse/WalkLimitGraphHashed.obj"));
 		oos_graph.writeObject(gr_t);
 		oos_graph.close();
 	}

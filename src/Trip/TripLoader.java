@@ -167,5 +167,4 @@ public class TripLoader {
 		return trips;
 
 	}
-
 }

@@ -60,13 +60,14 @@ public class GraphNode implements Serializable{
 	public void setId(long l){
 		this.id = l;
 	}
-
 	
-	public boolean equals(GraphNode node){
+	@Override 
+	public boolean equals(Object node) {
 		if(node == null)
 			return false;
-		return this.getId()==node.getId();
-	}
+        GraphNode node_x = (GraphNode) node;
+        return (node_x.id == this.id);
+    }
 	
 	public String toString(){
 		String rt_str;
@@ -74,4 +75,12 @@ public class GraphNode implements Serializable{
 		return	rt_str;
 	}
 	
+	@Override 
+	public int hashCode() { 
+	    int hash = 1;
+	    hash = hash+((int) Math.round(this.lat*1000) );
+	    hash = hash+((int) Math.round(this.lon*1000) );
+	    hash = (int) (hash+this.id);
+	    return hash;
+	  }
 }

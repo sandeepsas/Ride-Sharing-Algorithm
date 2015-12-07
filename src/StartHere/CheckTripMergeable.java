@@ -20,7 +20,7 @@ import Trip.Trip;
 import Trip.TripDataHandler;
 import Trip.TripLoader;
 
-public class test {
+public class CheckTripMergeable {
 	//Find Driving and Walking distance 
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
@@ -38,7 +38,7 @@ public class test {
 		//String id, double lat, double lon, int pass_count, float delay, float walk_time
 		// Read Trip between 2013-01-01 07:50:00 and 2013-01-01 07:55:00
 		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-01 08:50:00");
-		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-01 08:52:00");
+		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-01 08:51:00");
 		List<TaxiTrip>  trips = tripLoader.loadTrips(startTime,endTime);
 		Iterator<TaxiTrip> trip_itr = trips.iterator();
 		TaxiTrip trip_A = trip_itr.next();
@@ -109,14 +109,13 @@ public class test {
 				
 				GraphNode drop_A = tripLoader.nodeIDtoGraphNode(dropoff_A_pair.getL());
 				GraphNode drop_B = tripLoader.nodeIDtoGraphNode(dropoff_B_pair.getL());
-				System.out.println("MERGEABLE");
-				/*DijkstraShortestPath<GraphNode, DefaultWeightedEdge> dsp = new
-						DijkstraShortestPath<GraphNode, DefaultWeightedEdge>(graph,dropoff_A_pair,dropoff_B_pair);*/
-				/*float driving_time_from_dropoff_B_to_dropoff_A = (float) dsp.getPathLength();
+				DijkstraShortestPath<GraphNode, DefaultWeightedEdge> dsp = new
+						DijkstraShortestPath<GraphNode, DefaultWeightedEdge>(tripLoader.getGraph(),drop_A,drop_B);
+				float driving_time_from_dropoff_B_to_dropoff_A = (float) dsp.getPathLength();
 				float lhs = driving_time_from_dropoff_B_to_dropoff_A+walking_time_to_dest_B-driving_time_to_dest_B;
 				if(lhs<max_delay_trip_B){
 					System.out.println("MERGEABLE");
-				}*/
+				}
 			}
 		}
 

@@ -95,7 +95,7 @@ public class RoadGraphGenerator {
 
 		System.out.println("Serialization started at"+ LocalDateTime.now() );
 
-		ObjectOutputStream oos_graph = new ObjectOutputStream(new FileOutputStream("ObjectWarehouse/SpeedLimtGraph.obj"));
+		ObjectOutputStream oos_graph = new ObjectOutputStream(new FileOutputStream("ObjectWarehouse/SpeedLimtGraphHashed.obj"));
 		oos_graph.writeObject(gr_t);
 		oos_graph.close();
 	}

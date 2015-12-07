@@ -138,5 +138,14 @@ public class DirectedEdge implements Serializable{
 		float walk_weight = (float) ((this.length/3)*60);
 		return walk_weight;
 	}
+	
+	@Override 
+	public int hashCode() { 
+	    int hash = 1;
+	    hash = hash+startNode.hashCode();
+	    hash = hash+endNode.hashCode();
+	    hash = hash+ Math.round(weight*1000);
+	    return hash;
+	  }
 
 }

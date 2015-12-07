@@ -25,7 +25,7 @@ public class AlgorithmMain {
 		
 		System.out.println("De-Serialization started at"+ LocalDateTime.now() );
 
-		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/DDWGraphDropOff.obj"));
+		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/WalkLimitGraph.obj"));
 
 		//Construct Graph
 		DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge> gr_t = new  
@@ -57,7 +57,7 @@ public class AlgorithmMain {
 			while(bfs.hasNext()){
 				GraphNode bfs_next_node = bfs.next();
 				double walk_dist = bfs.getShortestPathLength(bfs_next_node);
-				tt.append(bfs_next_node.getId()+"-"+walk_dist+", ");
+				tt.append(bfs_next_node.getId()+"->"+walk_dist+", ");
 			}
 			DropOffPoints.println(tt);
 			System.out.println("Vertex Count -> "+ctr);
