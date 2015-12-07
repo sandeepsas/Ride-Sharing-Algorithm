@@ -1,3 +1,8 @@
+/*
+ * Loads all the precomputed data for Algorithm1
+ * 
+ * @Author Sandeep Sasidharan
+ */
 package Trip;
 
 import java.io.BufferedReader;
@@ -136,35 +141,4 @@ public class TripLoader {
 		return node;
 	}
 
-	public List<TaxiTrip> loadTrips(DateTime startTime, DateTime endTime) throws IOException {
-		// TODO Auto-generated method stub
-		List<TaxiTrip> trips = new ArrayList<TaxiTrip>();
-		BufferedReader bf = new BufferedReader(new FileReader("TripData/TripData.csv"));
-		String s = new String();
-		s = bf.readLine();
-		while((s=bf.readLine())!=null &&
-				(s.length()!=0) ){
-			String[] split_readline = s.split(",");
-			DateTime trip_start_time =  Constants.dt_formatter.parseDateTime(split_readline[5]);
-
-			TaxiTrip trip = new TaxiTrip();
-			if(trip_start_time.compareTo(startTime)>0 &&
-					trip_start_time.compareTo(endTime)<0 	){
-				trip = new TaxiTrip(split_readline[0],
-						split_readline[5],
-						split_readline[6],
-						split_readline[7],
-						split_readline[8],
-						split_readline[9],
-						split_readline[10],
-						split_readline[11],
-						split_readline[12],
-						split_readline[13]);
-				trips.add(trip);
-			}
-
-		}
-		return trips;
-
-	}
 }

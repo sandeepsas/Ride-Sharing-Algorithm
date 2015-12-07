@@ -1,5 +1,7 @@
 package Trip;
 
+import org.joda.time.Duration;
+
 public class TaxiTrip {
 
 	String medallion;
@@ -52,6 +54,18 @@ public class TaxiTrip {
 
 	public TaxiTrip() {
 		// TODO Auto-generated constructor stub
+	}
+
+	public long getTravelTime() {
+		// TODO Auto-generated method stub
+		Duration trip_duration = FilterFns.CalculateTripDuration(this.pickup_datetime,this.dropoff_datetime);
+		long trip_duration_mins = trip_duration.getStandardMinutes() ;
+		return trip_duration_mins;
+	}
+
+	public String getMedallion() {
+		// TODO Auto-generated method stub
+		return this.medallion;
 	}
 
 }
