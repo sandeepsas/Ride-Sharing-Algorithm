@@ -99,7 +99,7 @@ public class TripLoader {
 		bf.close();
 		// Load the Graph
 		//Construct Graph
-		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/SpeedLimtGraph.obj"));
+		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/SpeedLimtGraphHashed.obj"));
 		gr_t = new  DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		gr_t =  (DefaultDirectedWeightedGraph<GraphNode, DefaultWeightedEdge>) oos_graph_read.readObject();
 		oos_graph_read.close();

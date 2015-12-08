@@ -14,48 +14,55 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 
 import Graph.GraphNode;
 import Graph.Pair;
+import NYCTripAnalyzer.TripDataGenerator;
 import Trip.Constants;
 import Trip.KdTree;
 import Trip.TaxiTrip;
 import Trip.TripLoader;
 
 public class CheckTripMergeable {
+	static final Logger LOGGER = Logger.getLogger(CheckTripMergeable.class.getName());
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
 
-		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set1.txt"));
+		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set2.txt"));
+		merge_trips_writer.println("Run started at"+ LocalDateTime.now() );
 		merge_trips_writer.println("********** TRIPS MERGEABLE ********** ");
 		merge_trips_writer.println("************************************* \n");
 		
 		// Read Trip between 2013-01-01 08:50:00 and 2013-01-01 08:55:00
-		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-03 07:41:00");
-		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-03 07:42:00");
+		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-03 07:50:00");
+		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-03 07:55:00");
 		List<TaxiTrip>  trips = loadTrips(startTime,endTime);
 		Iterator<TaxiTrip> trip_itr1 = trips.iterator();
 		// Generate possible trip combos and populate merge-able trips
 		TripLoader tripLoader = new TripLoader();
 		List<Pair<TaxiTrip,TaxiTrip>> mergeable_trips = new ArrayList<Pair<TaxiTrip,TaxiTrip>>();
-		int ctr = 0;
+		int ctr_i = 1;
+		int ctr_j = 1;
 		int noTr = trips.size();
 		while(trip_itr1.hasNext()){
-			System.out.println(ctr+"->"+noTr);
-			ctr++;
+			ctr_i++;
 			TaxiTrip trip_A = trip_itr1.next();
 			Iterator<TaxiTrip> trip_itr2 = trips.iterator();
 			while (trip_itr2.hasNext()){
+				CheckTripMergeable.LOGGER.info("Processing "+ctr_j+"-"+ctr_i+" of "+noTr);
 				TaxiTrip trip_B = trip_itr2.next();
 				if(!trip_A.equals(trip_B)){
 					if(checkMergeable(trip_A,trip_B,tripLoader,merge_trips_writer))
 						mergeable_trips.add(new Pair<TaxiTrip,TaxiTrip>(trip_A,trip_B));
 				}
+				ctr_j++;
 			}
 		}
 		//Print Results
@@ -75,6 +82,7 @@ public class CheckTripMergeable {
 		merge_trips_writer.println("************************************* ");
 		merge_trips_writer.println("Number of Mergeable Pairs = "+mergeable_trips.size());
 		merge_trips_writer.println("************************************* ");
+		merge_trips_writer.println("Run started at"+ LocalDateTime.now() );
 		merge_trips_writer.close();
 	}
 
@@ -169,12 +177,22 @@ public class CheckTripMergeable {
 				DijkstraShortestPath<GraphNode, DefaultWeightedEdge> dsp = new
 						DijkstraShortestPath<GraphNode, DefaultWeightedEdge>(gr_t,drop_A,drop_B);
 				float driving_time_from_dropoff_B_to_dropoff_A = (float) dsp.getPathLength()*travel_time_correction_ratio;
+				
+			/*	float driving_time_from_dropoff_B_to_dropoff_A = 0;
+				List<DefaultWeightedEdge> shortest_paths =  DijkstraShortestPath.findPathBetween(gr_t,drop_A,drop_B);
+				Iterator<DefaultWeightedEdge> sp_itr = shortest_paths.iterator();
+				while(sp_itr.hasNext()){
+					driving_time_from_dropoff_B_to_dropoff_A+=gr_t.getEdgeWeight(sp_itr.next());
+				}
+				driving_time_from_dropoff_B_to_dropoff_A = driving_time_from_dropoff_B_to_dropoff_A*travel_time_correction_ratio;*/
+				
 				float lhs = driving_time_from_dropoff_B_to_dropoff_A+walking_time_to_dest_B-driving_time_to_dest_B;
 				if(lhs<max_delay_trip_B){
 					result = true;
 					merge_trips_writer.println("MERGEABLE PAIR => Trip# "+trip_A+" can be dropped at "+drop_A.getId()+" (Original Destination - "+OSM_dest_A.linearID+" )"
 							+ " and Trip # "+trip_B+" can be dropped at "+drop_B.getId()+" (Original Destination - "+OSM_dest_B.linearID+" )"
 							);
+					break;
 				}else{
 					result = false;
 				}
