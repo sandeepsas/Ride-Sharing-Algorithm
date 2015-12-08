@@ -71,7 +71,7 @@ public class TaxiTrip {
 		return this.medallion;
 	}
 	public String toString(){
-		return (this.medallion);
+		return ("TRIP # "+this.medallion);
 		
 	}
 
