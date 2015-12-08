@@ -51,6 +51,9 @@ public class TaxiTrip {
 	public double getDropOff(){
 		return Double.parseDouble(this.dropoff_longitude);
 	}
+	public int getPassengerCount(){
+		return Integer.parseInt(this.passenger_count);
+	}
 
 	public TaxiTrip() {
 		// TODO Auto-generated constructor stub
@@ -66,6 +69,10 @@ public class TaxiTrip {
 	public String getMedallion() {
 		// TODO Auto-generated method stub
 		return this.medallion;
+	}
+	public String toString(){
+		return (this.medallion);
+		
 	}
 
 }

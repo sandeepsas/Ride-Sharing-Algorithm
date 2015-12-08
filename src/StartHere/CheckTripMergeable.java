@@ -31,48 +31,62 @@ public class CheckTripMergeable {
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
 
-		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips.txt"));
+		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set1.txt"));
+		merge_trips_writer.println("********** TRIPS MERGEABLE ********** ");
+		merge_trips_writer.println("************************************* \n");
+		
 		// Read Trip between 2013-01-01 08:50:00 and 2013-01-01 08:55:00
-		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-01 08:50:00");
-		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-01 08:55:00");
+		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-03 07:41:00");
+		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-03 07:42:00");
 		List<TaxiTrip>  trips = loadTrips(startTime,endTime);
 		Iterator<TaxiTrip> trip_itr1 = trips.iterator();
 		// Generate possible trip combos and populate merge-able trips
+		TripLoader tripLoader = new TripLoader();
 		List<Pair<TaxiTrip,TaxiTrip>> mergeable_trips = new ArrayList<Pair<TaxiTrip,TaxiTrip>>();
+		int ctr = 0;
+		int noTr = trips.size();
 		while(trip_itr1.hasNext()){
+			System.out.println(ctr+"->"+noTr);
+			ctr++;
 			TaxiTrip trip_A = trip_itr1.next();
 			Iterator<TaxiTrip> trip_itr2 = trips.iterator();
 			while (trip_itr2.hasNext()){
 				TaxiTrip trip_B = trip_itr2.next();
 				if(!trip_A.equals(trip_B)){
-					if(checkMergeable(trip_A,trip_B))
+					if(checkMergeable(trip_A,trip_B,tripLoader,merge_trips_writer))
 						mergeable_trips.add(new Pair<TaxiTrip,TaxiTrip>(trip_A,trip_B));
 				}
 			}
 		}
 		//Print Results
-		merge_trips_writer.println("********** Trips Mergeable ********** ");
+		merge_trips_writer.println("************* TRIP SUMMARY ********** ");
 		merge_trips_writer.println("************************************* \n");
 		merge_trips_writer.println("************* Time Interval ********* ");
 		merge_trips_writer.println("************************************* ");
-		merge_trips_writer.println("2013-01-01 08:50:00 and 2013-01-01 08:55:00");
+		merge_trips_writer.println("2013-01-01 07:50:00 and 2013-01-01 07:55:00");
+		merge_trips_writer.println("************************************* ");
+		merge_trips_writer.println("Total Number of Trips = "+trips.size());
 		merge_trips_writer.println("************************************* ");
 		Iterator <Pair<TaxiTrip,TaxiTrip>> merge_list_itr = mergeable_trips.iterator();
 		while(merge_list_itr.hasNext()){
 			Pair<TaxiTrip,TaxiTrip> merge_pair = merge_list_itr.next();
 			merge_trips_writer.println("\n Trip# "+merge_pair.getL()+" and Trip# "+merge_pair.getR());
 		}
+		merge_trips_writer.println("************************************* ");
+		merge_trips_writer.println("Number of Mergeable Pairs = "+mergeable_trips.size());
+		merge_trips_writer.println("************************************* ");
 		merge_trips_writer.close();
 	}
 
-	private  static boolean checkMergeable(TaxiTrip trip_A, TaxiTrip trip_B) throws ClassNotFoundException, IOException {
+	private  static boolean checkMergeable(TaxiTrip trip_A, 
+			TaxiTrip trip_B, TripLoader tripLoader,PrintWriter merge_trips_writer) throws ClassNotFoundException, IOException {
 		// TODO Auto-generated method stub
 		boolean result = false;
 		//Initializations
 		double PERCENTAGE_TRIP_DELAY = 0.1;
 		double MAX_WALK_TIME = 5; //The Graph is populated for 5 mins 
 		//Initialize Drop-offs
-		TripLoader tripLoader = new TripLoader();
+		
 		//TripDataHandler tHandler = new TripDataHandler();
 
 		Map<String, List<Pair<String, String>>> dropOffMap = tripLoader.getDropOffMap();
@@ -131,6 +145,7 @@ public class CheckTripMergeable {
 
 		//Fetch possible drop-off points for trip A
 		//Find the GraphNode on Road Network
+		DefaultDirectedWeightedGraph<GraphNode, DefaultWeightedEdge> gr_t = tripLoader.getGraph();
 
 		float max_delay_trip_B = (float) (driving_time_to_dest_B*PERCENTAGE_TRIP_DELAY);
 		List<Pair<String, String>> dropOffPoints_B = dropOffMap.get(OSM_dest_B.linearID.trim());
@@ -152,11 +167,14 @@ public class CheckTripMergeable {
 				GraphNode drop_A = tripLoader.nodeIDtoGraphNode(dropoff_A_pair.getL());
 				GraphNode drop_B = tripLoader.nodeIDtoGraphNode(dropoff_B_pair.getL());
 				DijkstraShortestPath<GraphNode, DefaultWeightedEdge> dsp = new
-						DijkstraShortestPath<GraphNode, DefaultWeightedEdge>(tripLoader.getGraph(),drop_A,drop_B);
+						DijkstraShortestPath<GraphNode, DefaultWeightedEdge>(gr_t,drop_A,drop_B);
 				float driving_time_from_dropoff_B_to_dropoff_A = (float) dsp.getPathLength()*travel_time_correction_ratio;
 				float lhs = driving_time_from_dropoff_B_to_dropoff_A+walking_time_to_dest_B-driving_time_to_dest_B;
 				if(lhs<max_delay_trip_B){
 					result = true;
+					merge_trips_writer.println("MERGEABLE PAIR => Trip# "+trip_A+" can be dropped at "+drop_A.getId()+" (Original Destination - "+OSM_dest_A.linearID+" )"
+							+ " and Trip # "+trip_B+" can be dropped at "+drop_B.getId()+" (Original Destination - "+OSM_dest_B.linearID+" )"
+							);
 				}else{
 					result = false;
 				}
@@ -176,8 +194,9 @@ public class CheckTripMergeable {
 			DateTime trip_start_time =  Constants.dt_formatter.parseDateTime(split_readline[5]);
 
 			TaxiTrip trip = new TaxiTrip();
+			
 			if(trip_start_time.compareTo(startTime)>0 &&
-					trip_start_time.compareTo(endTime)<0 	){
+					trip_start_time.compareTo(endTime)<=0 	){
 				trip = new TaxiTrip(split_readline[0],
 						split_readline[5],
 						split_readline[6],
@@ -188,7 +207,10 @@ public class CheckTripMergeable {
 						split_readline[11],
 						split_readline[12],
 						split_readline[13]);
-				trips.add(trip);
+				
+				int paasenger_count = trip.getPassengerCount();
+				if(paasenger_count==1)
+					trips.add(trip);
 			}
 
 		}

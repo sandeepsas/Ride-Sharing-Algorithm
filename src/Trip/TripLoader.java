@@ -136,8 +136,6 @@ public class TripLoader {
 		node.setId(Long.parseLong(nodeID));
 		node.setLat(node_pos.getL());
 		node.setLon(node_pos.getR());
-		if(this.gr_t.containsVertex(node))
-			System.out.println(node);
 		return node;
 	}
 
