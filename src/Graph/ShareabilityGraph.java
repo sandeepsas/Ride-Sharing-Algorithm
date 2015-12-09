@@ -8,42 +8,36 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Spliterator;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.Graphs;
+import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
+import org.jgrapht.alg.EdmondsBlossomShrinking;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleGraph;
 
 import MaximumMatching.EdmondsMatching;
 import MaximumMatching.MUndirectedGraph;
 import StartHere.CheckTripMergeable;
-import StartHere.EdmondsBlossomMaxMatch;
 import Trip.KdTree;
 import Trip.TaxiTrip;
 import Trip.TripLoader;
 
 public class ShareabilityGraph {
-	List<Pair <Pair<TaxiTrip,TaxiTrip>, GraphPath> > shareable_network_elements;
 	List<DefaultWeightedEdge> shareable_graph_edges;
-	DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge> shareGraph;
+
 	MUndirectedGraph uNshareGraph;
 
 	public ShareabilityGraph (){
-		shareable_network_elements = new 
-				ArrayList<Pair <Pair<TaxiTrip,TaxiTrip>, GraphPath> >();
 		shareable_graph_edges = new ArrayList<DefaultWeightedEdge>();
-		
-		shareGraph = new  
-				DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge>(DefaultWeightedEdge.class);
-		
 		uNshareGraph = new MUndirectedGraph();
 	}
 
-	public void addGraphElements(Pair <Pair<TaxiTrip,TaxiTrip>,GraphPath>  tuple){
-		this.shareable_network_elements.add(tuple);
-	}
 	public  boolean checkMergeable(TaxiTrip trip_A, 
 			TaxiTrip trip_B, TripLoader tripLoader,PrintWriter merge_trips_writer) throws ClassNotFoundException, IOException {
 		// TODO Auto-generated method stub
@@ -84,7 +78,7 @@ public class ShareabilityGraph {
 
 		//Drop-off points compuatations
 		List<Pair<String, String>> dropOffPoints_A = dropOffMap.get(OSM_dest_A.linearID.trim());
-
+		CheckTripMergeable.LOGGER.info("No of dropoff point for trip A = "+dropOffPoints_A.size());
 		Iterator<Pair<String, String>> d_A_itr = dropOffPoints_A.iterator();
 
 		List<Pair<String, String>> possible_dropoffs_A = 
@@ -116,7 +110,7 @@ public class ShareabilityGraph {
 		float max_delay_trip_B = (float) (driving_time_to_dest_B*PERCENTAGE_TRIP_DELAY);
 		List<Pair<String, String>> dropOffPoints_B = dropOffMap.get(OSM_dest_B.linearID.trim());
 		Iterator<Pair<String, String>> d_B_itr = dropOffPoints_B.iterator();
-
+		CheckTripMergeable.LOGGER.info("No of dropoff point for trip B = "+dropOffPoints_B.size());
 		List<Pair<String, String>> possible_dropoffs_B = 
 				new ArrayList<Pair<String, String>>();
 		while(d_B_itr.hasNext()){
@@ -135,15 +129,6 @@ public class ShareabilityGraph {
 				DijkstraShortestPath<GraphNode, DefaultWeightedEdge> dsp = new
 						DijkstraShortestPath<GraphNode, DefaultWeightedEdge>(gr_t,drop_A,drop_B);
 				float driving_time_from_dropoff_B_to_dropoff_A = (float) dsp.getPathLength()*travel_time_correction_ratio;
-			
-				
-				/*	float driving_time_from_dropoff_B_to_dropoff_A = 0;
-				List<DefaultWeightedEdge> shortest_paths =  DijkstraShortestPath.findPathBetween(gr_t,drop_A,drop_B);
-				Iterator<DefaultWeightedEdge> sp_itr = shortest_paths.iterator();
-				while(sp_itr.hasNext()){
-					driving_time_from_dropoff_B_to_dropoff_A+=gr_t.getEdgeWeight(sp_itr.next());
-				}
-				driving_time_from_dropoff_B_to_dropoff_A = driving_time_from_dropoff_B_to_dropoff_A*travel_time_correction_ratio;*/
 
 				float lhs = driving_time_from_dropoff_B_to_dropoff_A+walking_time_to_dest_B-driving_time_to_dest_B;
 				if(lhs<max_delay_trip_B){
@@ -151,9 +136,7 @@ public class ShareabilityGraph {
 					merge_trips_writer.println("MERGEABLE PAIR => "+trip_A+" can be dropped at "+drop_A.getId()+" (Destination - "+OSM_dest_A.linearID+" )"
 							+ " and "+trip_B+" can be dropped at "+drop_B.getId()+" ( Destination - "+OSM_dest_B.linearID+" )"
 							);
-					//GraphPath sGraphPath = dsp.getPath();
-					/*shareable_network_elements.add(new Pair<Pair<TaxiTrip, TaxiTrip>, GraphPath>
-					( new Pair<TaxiTrip, TaxiTrip>(trip_A,trip_B), sGraphPath));*/
+
 					result = true;
 					break;
 				}
@@ -164,51 +147,58 @@ public class ShareabilityGraph {
 		return result;
 	}
 
-	public void constructGraph() {
-		// TODO Auto-generated method stub
-		
-/*		Iterator<Pair <Pair<TaxiTrip,TaxiTrip>,GraphPath> >obj_list_itr = 
-				this.shareable_network_elements.iterator();
-		while(obj_list_itr.hasNext()){
-			Pair <Pair<TaxiTrip,TaxiTrip>, GraphPath> elt = obj_list_itr.next();
-			Graph sp_graph = elt.getR().getGraph();
-			List<DefaultWeightedEdge> edge_set = elt.getR().getEdgeList();
-			Iterator<DefaultWeightedEdge> edge_set_itr = edge_set.iterator();
-			while(edge_set_itr.hasNext()){
-				DefaultWeightedEdge e1 = edge_set_itr.next();
-				GraphNode source_node = (GraphNode) sp_graph.getEdgeSource(e1);
-				GraphNode target_node = (GraphNode) sp_graph.getEdgeTarget(e1);
-				this.uNshareGraph.addNode(source_node);
-				this.uNshareGraph.addNode(target_node);
-				this.uNshareGraph.addEdge(source_node, target_node);
-			}
-		}*/
-
-
-	}
-
 	public void findMaxMatch(PrintWriter merge_trips_writer) {
 		// TODO Auto-generated method stub
-		
+
 		MUndirectedGraph<TaxiTrip> max_match_graph = EdmondsMatching.maximumMatching(this.uNshareGraph);
+		merge_trips_writer.println("Total Matches found = "+max_match_graph.size()+"\n");
 		merge_trips_writer.println(max_match_graph);
-		
 	}
 
 	public void constructShareabilityGraph(List<Pair<TaxiTrip,TaxiTrip>> mergeable_pair_list) {
 		// TODO Auto-generated method stub
 		Iterator<Pair<TaxiTrip,TaxiTrip>> obj_list_itr = 
 				mergeable_pair_list.iterator();
-		
+
 		while(obj_list_itr.hasNext()){
 			Pair<TaxiTrip,TaxiTrip> trip_pair = obj_list_itr.next();
-			
+
 			TaxiTrip trip_A = trip_pair.getL();
 			TaxiTrip trip_B = trip_pair.getR();
-			
+
 			this.uNshareGraph.addNode(trip_A);
 			this.uNshareGraph.addNode(trip_B);
 			this.uNshareGraph.addEdge(trip_A, trip_B);
+		}
+
+	}
+
+	public void useJgraphBlossom(List<Pair<TaxiTrip, TaxiTrip>> mergeable_trips, PrintWriter merge_trips_writer) {
+		// TODO Auto-generated method stub
+		UndirectedGraph<TaxiTrip, DefaultEdge> shareJGraph =
+	            new SimpleGraph<TaxiTrip, DefaultEdge>(DefaultEdge.class);
+		Iterator<Pair<TaxiTrip,TaxiTrip>> obj_list_itr = 
+				mergeable_trips.iterator();
+
+		while(obj_list_itr.hasNext()){
+			Pair<TaxiTrip,TaxiTrip> trip_pair = obj_list_itr.next();
+
+			TaxiTrip trip_A = trip_pair.getL();
+			TaxiTrip trip_B = trip_pair.getR();
+
+			shareJGraph.addVertex(trip_A);
+			shareJGraph.addVertex(trip_B);
+			shareJGraph.addEdge(trip_A, trip_B);
+		}
+		//Find MM
+		EdmondsBlossomShrinking<TaxiTrip, DefaultEdge> emMMx = new EdmondsBlossomShrinking<TaxiTrip, DefaultEdge>(shareJGraph);
+		Set<DefaultEdge> matched_edge_list = emMMx.getMatching();
+		Iterator<DefaultEdge> matched_edge_list_itr = matched_edge_list.iterator();
+		merge_trips_writer.println("\n \n ********************************************");
+		merge_trips_writer.println("Total Matches found = "+matched_edge_list.size()+"\n");
+		while(matched_edge_list_itr.hasNext()){
+			
+			merge_trips_writer.println(matched_edge_list_itr.next());
 		}
 		
 	}
