@@ -1,5 +1,8 @@
 package Graph;
 
+import java.util.Objects;
+
+
 public class Pair<L,R> {
     private L l;
     private R r;
@@ -11,4 +14,20 @@ public class Pair<L,R> {
     public R getR(){ return r; }
     public void setL(L l){ this.l = l; }
     public void setR(R r){ this.r = r; }
+    
+    
+	@Override 
+	public int hashCode() { 
+		return Objects.hash(l, r);
+	  }
+	@Override 
+	public boolean equals(Object node) {
+		if(node == null)
+			return false;
+		Pair<L, R> node_x = (Pair<L, R>) node;
+        return ((node_x.l == this.l) && (node_x.r == this.r));
+    }
+    
+    
+    
 }

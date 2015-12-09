@@ -36,14 +36,14 @@ public class CheckTripMergeable {
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
 
-		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set8.txt"));
+		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set9.txt"));
 		merge_trips_writer.println("Run started at"+ LocalDateTime.now() );
 		merge_trips_writer.println("\n********** TRIPS MERGEABLE ********** ");
 		merge_trips_writer.println("************************************* \n");
-		
+
 		// Read Trip between 2013-01-01 08:50:00 and 2013-01-01 08:55:00
-		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-03 10:30:00");
-		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-03 10:35:00");
+		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-03 07:50:00");
+		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-03 07:55:00");
 		List<TaxiTrip>  trips = loadTrips(startTime,endTime);
 		CheckTripMergeable.LOGGER.info("Total No of trips in the pool = "+trips.size());
 		merge_trips_writer.println("Precomputed files loading completed at "+ LocalDateTime.now() );
@@ -51,24 +51,24 @@ public class CheckTripMergeable {
 		// Generate possible trip combos and populate merge-able trips
 		TripLoader tripLoader = new TripLoader();
 		List<Pair<TaxiTrip,TaxiTrip>> mergeable_trips = new ArrayList<Pair<TaxiTrip,TaxiTrip>>();
-		
+
 		ShareabilityGraph sG = new ShareabilityGraph();
-		
-		int ctr_i = 1;
-		int ctr_j = 1;
-		int noTr = trips.size();
+
 		while(trip_itr1.hasNext()){
-			ctr_i++;
+
 			TaxiTrip trip_A = trip_itr1.next();
 			Iterator<TaxiTrip> trip_itr2 = trips.iterator();
 			while (trip_itr2.hasNext()){
-				CheckTripMergeable.LOGGER.info("Processing "+ctr_j+"-"+ctr_i+" of "+noTr);
+
 				TaxiTrip trip_B = trip_itr2.next();
 				if(!trip_A.equals(trip_B)){
-					if(sG.checkMergeable(trip_A,trip_B,tripLoader,merge_trips_writer))
-						mergeable_trips.add(new Pair<TaxiTrip,TaxiTrip>(trip_A,trip_B));
+					if(!mergeable_trips.contains(new Pair<TaxiTrip,TaxiTrip>(trip_B,trip_A))){
+						if(sG.checkMergeable(trip_A,trip_B,tripLoader,merge_trips_writer)){
+							CheckTripMergeable.LOGGER.info("Processing "+trip_A+"and "+trip_B);
+							mergeable_trips.add(new Pair<TaxiTrip,TaxiTrip>(trip_A,trip_B));
+						}
+					}
 				}
-				ctr_j++;
 			}
 		}
 		//Print Results
@@ -89,10 +89,10 @@ public class CheckTripMergeable {
 			Pair<TaxiTrip,TaxiTrip> merge_pair = merge_list_itr.next();
 			merge_trips_writer.println("\n"+merge_pair.getL()+" and "+merge_pair.getR());
 		}
-		
-		
-		
-		
+
+
+
+
 		/*Construct Shareability Graph*/
 		sG.constructShareabilityGraph(mergeable_trips);
 		merge_trips_writer.println("\n ************************************* ");
@@ -100,10 +100,10 @@ public class CheckTripMergeable {
 		merge_trips_writer.println("************************************* ");
 		sG.findMaxMatch(merge_trips_writer);
 		merge_trips_writer.println("************************************* ");
-		
-		
+
+
 		sG.useJgraphBlossom(mergeable_trips,merge_trips_writer);
-		
+
 		merge_trips_writer.println("Run ended at"+ LocalDateTime.now() );
 		merge_trips_writer.close();
 	}
@@ -121,7 +121,7 @@ public class CheckTripMergeable {
 			DateTime trip_start_time =  Constants.dt_formatter.parseDateTime(split_readline[5]);
 
 			TaxiTrip trip = new TaxiTrip();
-			
+
 			if(trip_start_time.compareTo(startTime)>0 &&
 					trip_start_time.compareTo(endTime)<=0 	){
 				trip = new TaxiTrip(split_readline[0],
@@ -134,7 +134,7 @@ public class CheckTripMergeable {
 						split_readline[11],
 						split_readline[12],
 						split_readline[13]);
-				
+
 				int paasenger_count = trip.getPassengerCount();
 				if(paasenger_count==1)
 					trips.add(trip);

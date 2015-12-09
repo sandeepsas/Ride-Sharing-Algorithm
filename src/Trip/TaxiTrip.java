@@ -2,6 +2,8 @@ package Trip;
 
 import org.joda.time.Duration;
 
+import Graph.GraphNode;
+
 public class TaxiTrip {
 
 	String medallion;
@@ -74,5 +76,19 @@ public class TaxiTrip {
 		return ("TRIP # "+this.medallion);
 		
 	}
+	@Override 
+	public int hashCode() { 
+	    int hash = 1;
+	    hash = hash+Integer.parseInt(medallion);
+	    hash = ((int) Math.round(Double.parseDouble(this.dropoff_latitude)*1000) );
+	    return hash;
+	  }
+	@Override 
+	public boolean equals(Object node) {
+		if(node == null)
+			return false;
+		TaxiTrip node_x = (TaxiTrip) node;
+        return (node_x.medallion == this.medallion);
+    }
 
 }

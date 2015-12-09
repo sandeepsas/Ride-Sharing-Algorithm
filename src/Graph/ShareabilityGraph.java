@@ -78,7 +78,7 @@ public class ShareabilityGraph {
 
 		//Drop-off points compuatations
 		List<Pair<String, String>> dropOffPoints_A = dropOffMap.get(OSM_dest_A.linearID.trim());
-		CheckTripMergeable.LOGGER.info("No of dropoff point for trip A = "+dropOffPoints_A.size());
+		//CheckTripMergeable.LOGGER.info("No of dropoff point for trip A = "+dropOffPoints_A.size());
 		Iterator<Pair<String, String>> d_A_itr = dropOffPoints_A.iterator();
 
 		List<Pair<String, String>> possible_dropoffs_A = 
@@ -110,7 +110,7 @@ public class ShareabilityGraph {
 		float max_delay_trip_B = (float) (driving_time_to_dest_B*PERCENTAGE_TRIP_DELAY);
 		List<Pair<String, String>> dropOffPoints_B = dropOffMap.get(OSM_dest_B.linearID.trim());
 		Iterator<Pair<String, String>> d_B_itr = dropOffPoints_B.iterator();
-		CheckTripMergeable.LOGGER.info("No of dropoff point for trip B = "+dropOffPoints_B.size());
+		//CheckTripMergeable.LOGGER.info("No of dropoff point for trip B = "+dropOffPoints_B.size());
 		List<Pair<String, String>> possible_dropoffs_B = 
 				new ArrayList<Pair<String, String>>();
 		while(d_B_itr.hasNext()){
