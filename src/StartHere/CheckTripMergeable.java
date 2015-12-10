@@ -36,7 +36,7 @@ public class CheckTripMergeable {
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
 
-		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set_14e.txt"));
+		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set_14e_v1.txt"));
 		merge_trips_writer.println("Run started at"+ LocalDateTime.now() );
 		merge_trips_writer.println("\n********** TRIPS MERGEABLE ********** ");
 		merge_trips_writer.println("************************************* \n");

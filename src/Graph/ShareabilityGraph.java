@@ -146,7 +146,7 @@ public class ShareabilityGraph {
 					GraphNode node_dest_B = tripLoader.nodeIDtoGraphNode(OSM_dest_B.linearID.trim());
 					DijkstraShortestPath<GraphNode, DefaultWeightedEdge> dsp_w = new DijkstraShortestPath<GraphNode, DefaultWeightedEdge>(
 							gr_t, drop_A, node_dest_B);
-					float driving_time_d_A_dest_B = (float) dsp_w.getPathLength();
+					float driving_time_d_A_dest_B = (float) dsp_w.getPathLength()* travel_time_correction_ratio;
 					if(driving_time_d_A_dest_B - driving_time_to_dest_B < max_delay_trip_B){
 						merge_trips_writer.println("MERGEABLE PAIR => " + trip_A + " can be dropped at " + drop_A.getId()
 						+ " (Destination - " + OSM_dest_A.linearID + " )" + " and " + trip_B + " can be dropped at "
