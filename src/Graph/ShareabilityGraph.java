@@ -148,6 +148,9 @@ public class ShareabilityGraph {
 							gr_t, drop_A, node_dest_B);
 					float driving_time_d_A_dest_B = (float) dsp_w.getPathLength();
 					if(driving_time_d_A_dest_B - driving_time_to_dest_B < max_delay_trip_B){
+						merge_trips_writer.println("MERGEABLE PAIR => " + trip_A + " can be dropped at " + drop_A.getId()
+						+ " (Destination - " + OSM_dest_A.linearID + " )" + " and " + trip_B + " can be dropped at "
+						+ drop_B.getId() + " ( Destination - " + OSM_dest_B.linearID + " )");
 						return true;
 					}
 				}
@@ -174,13 +177,23 @@ public class ShareabilityGraph {
 
 		MUndirectedGraph<TaxiTrip> max_match_graph = EdmondsMatching.maximumMatching(this.uNshareGraph);
 		merge_trips_writer.println("Total Matches found = " + max_match_graph.size() + "\n");
-		//merge_trips_writer.println(max_match_graph);
 		merge_trips_writer.println("=============================================");
 		Iterator<TaxiTrip> t = max_match_graph.iterator();
+		
+		List<Pair<TaxiTrip,TaxiTrip>> unique_set = new ArrayList <Pair<TaxiTrip,TaxiTrip>>();
 		while(t.hasNext()){
 			TaxiTrip elt = t.next();
 			Set<TaxiTrip> eges = max_match_graph.edgesFrom(elt);
-			merge_trips_writer.println(elt+"->"+eges);
+			TaxiTrip edge = eges.iterator().next();
+			merge_trips_writer.println(elt+"->"+edge);
+			if(!unique_set.contains(new Pair(edge,elt)))
+			unique_set.add(new Pair(elt,edge));
+		}
+		
+		merge_trips_writer.println("UNIQUE MATCHES \n");
+		merge_trips_writer.println("=============================================");
+		for (int i=0;i<unique_set.size();i++){
+			merge_trips_writer.println(unique_set.get(i));
 		}
 		
 	}

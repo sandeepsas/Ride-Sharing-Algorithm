@@ -36,14 +36,14 @@ public class CheckTripMergeable {
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
 
-		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set_13e.txt"));
+		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set_14e.txt"));
 		merge_trips_writer.println("Run started at"+ LocalDateTime.now() );
 		merge_trips_writer.println("\n********** TRIPS MERGEABLE ********** ");
 		merge_trips_writer.println("************************************* \n");
 
 		// Read Trip between 2013-01-01 08:50:00 and 2013-01-01 08:55:00
-		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-03 11:30:00");
-		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-03 11:35:00");
+		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-12-05 15:30:00");
+		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-12-05 15:35:00");
 		List<TaxiTrip>  trips = loadTrips(startTime,endTime);
 		CheckTripMergeable.LOGGER.info("Total No of trips in the pool = "+trips.size());
 		
