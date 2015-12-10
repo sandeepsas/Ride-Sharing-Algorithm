@@ -41,16 +41,10 @@ public class TaxiTrip {
 
 	}
 	
-	public double getLat(){
+	public double getDropOffLat(){
 		return Double.parseDouble(this.dropoff_latitude);
 	}
-	public double getLon(){
-		return Double.parseDouble(this.dropoff_longitude);
-	}
-	public double getPickupTime(){
-		return Double.parseDouble(this.dropoff_latitude);
-	}
-	public double getDropOff(){
+	public double getDropOffLon(){
 		return Double.parseDouble(this.dropoff_longitude);
 	}
 	public int getPassengerCount(){

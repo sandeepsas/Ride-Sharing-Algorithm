@@ -27,6 +27,9 @@ public class Pair<L,R> {
 		Pair<L, R> node_x = (Pair<L, R>) node;
         return ((node_x.l == this.l) && (node_x.r == this.r));
     }
+	public String toString(){
+		return Objects.toString(this.l)+"-"+Objects.toString(this.r);
+	}
     
     
     

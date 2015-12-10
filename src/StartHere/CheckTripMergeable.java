@@ -36,48 +36,48 @@ public class CheckTripMergeable {
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
 
-		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set9.txt"));
+		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set_13e.txt"));
 		merge_trips_writer.println("Run started at"+ LocalDateTime.now() );
 		merge_trips_writer.println("\n********** TRIPS MERGEABLE ********** ");
 		merge_trips_writer.println("************************************* \n");
 
 		// Read Trip between 2013-01-01 08:50:00 and 2013-01-01 08:55:00
-		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-03 07:50:00");
-		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-03 07:55:00");
+		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-03 11:30:00");
+		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-03 11:35:00");
 		List<TaxiTrip>  trips = loadTrips(startTime,endTime);
 		CheckTripMergeable.LOGGER.info("Total No of trips in the pool = "+trips.size());
-		merge_trips_writer.println("Precomputed files loading completed at "+ LocalDateTime.now() );
-		Iterator<TaxiTrip> trip_itr1 = trips.iterator();
-		// Generate possible trip combos and populate merge-able trips
+		
 		TripLoader tripLoader = new TripLoader();
+		merge_trips_writer.println("Precomputed files loading completed at "+ LocalDateTime.now() );
+		// Generate possible trip combos and populate merge-able trips
+		List<Pair<TaxiTrip,TaxiTrip>>  dispatchList = new ArrayList<Pair<TaxiTrip,TaxiTrip>>();
+		
+		for(int i = 0 ; i < trips.size(); i ++){
+			for(int j = i+1 ; j < trips.size(); j ++){
+				dispatchList.add(new Pair(trips.get(i),trips.get(j)));
+			}
+		}
+		ShareabilityGraph sG = new ShareabilityGraph();
 		List<Pair<TaxiTrip,TaxiTrip>> mergeable_trips = new ArrayList<Pair<TaxiTrip,TaxiTrip>>();
 
-		ShareabilityGraph sG = new ShareabilityGraph();
-
-		while(trip_itr1.hasNext()){
-
-			TaxiTrip trip_A = trip_itr1.next();
-			Iterator<TaxiTrip> trip_itr2 = trips.iterator();
-			while (trip_itr2.hasNext()){
-
-				TaxiTrip trip_B = trip_itr2.next();
-				if(!trip_A.equals(trip_B)){
-					if(!mergeable_trips.contains(new Pair<TaxiTrip,TaxiTrip>(trip_B,trip_A))){
-						if(sG.checkMergeable(trip_A,trip_B,tripLoader,merge_trips_writer)){
-							CheckTripMergeable.LOGGER.info("Processing "+trip_A+"and "+trip_B);
-							mergeable_trips.add(new Pair<TaxiTrip,TaxiTrip>(trip_A,trip_B));
-						}
-					}
+		for(int j = 0 ; j < dispatchList.size(); j ++){
+			TaxiTrip trip_A = dispatchList.get(j).getL();
+			TaxiTrip trip_B = dispatchList.get(j).getR();
+			CheckTripMergeable.LOGGER.info("Processing "+trip_A+"and "+trip_B);  
+			if(sG.euclideanCheckSucess(trip_A,trip_B)) {
+				if(sG.checkMergeable(trip_A,trip_B,tripLoader,merge_trips_writer)){
+					mergeable_trips.add(new Pair<TaxiTrip,TaxiTrip>(trip_A,trip_B));
 				}
 			}
 		}
+		CheckTripMergeable.LOGGER.info("Summary Printing Started");  
 		//Print Results
 		merge_trips_writer.println("\n************************************* ");
 		merge_trips_writer.println("************* TRIP SUMMARY ********** ");
 		merge_trips_writer.println("************************************* \n");
 		merge_trips_writer.println("************* Time Interval ********* ");
 		merge_trips_writer.println("************************************* ");
-		merge_trips_writer.println("2013-01-01 07:50:00 and 2013-01-01 07:55:00");
+		merge_trips_writer.println(startTime.toString("yyyy-MM-dd HH:mm:ss")+" and "+ endTime.toString("yyyy-MM-dd HH:mm:ss"));
 		merge_trips_writer.println("************************************* ");
 		merge_trips_writer.println("Total Number of Trips = "+trips.size());
 		merge_trips_writer.println("************************************* ");
@@ -89,10 +89,6 @@ public class CheckTripMergeable {
 			Pair<TaxiTrip,TaxiTrip> merge_pair = merge_list_itr.next();
 			merge_trips_writer.println("\n"+merge_pair.getL()+" and "+merge_pair.getR());
 		}
-
-
-
-
 		/*Construct Shareability Graph*/
 		sG.constructShareabilityGraph(mergeable_trips);
 		merge_trips_writer.println("\n ************************************* ");
@@ -100,9 +96,7 @@ public class CheckTripMergeable {
 		merge_trips_writer.println("************************************* ");
 		sG.findMaxMatch(merge_trips_writer);
 		merge_trips_writer.println("************************************* ");
-
-
-		sG.useJgraphBlossom(mergeable_trips,merge_trips_writer);
+		//sG.useJgraphBlossom(mergeable_trips,merge_trips_writer);
 
 		merge_trips_writer.println("Run ended at"+ LocalDateTime.now() );
 		merge_trips_writer.close();
