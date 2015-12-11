@@ -1,3 +1,13 @@
+/*
+ * This class generate DefaultDirectedGraph from OSM data
+ * 
+ * Bounding Box of OSM NYC is set to North Latitude: 40.882214 South Latitude: 40.680396
+ * East Longitude: -73.907000 West Longitude: -74.047285
+ * 
+ * @Author: Sandeep Sasidharan
+ * 
+ * */
+
 package Generator;
 
 import java.io.FileNotFoundException;
@@ -28,7 +38,7 @@ public class RoadGraphGenerator {
 		XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 		factory.setNamespaceAware(true);
 		XmlPullParser xpp = factory.newPullParser();
-		xpp.setInput ( new FileReader ("OSMData/NYCRoadsF.osm"));
+		xpp.setInput ( new FileReader ("OSMData/NYCOSM.osm"));
 
 		//xpp.setInput ( new FileReader ("OSMData/NYC_sample.osm"));
 		g.osmGraphParser(xpp);
@@ -37,15 +47,15 @@ public class RoadGraphGenerator {
 		LinkedList<GraphNode> nodes = g.nodes;
 		LinkedList<DirectedEdge> edges = g.edges;
 		GraphNode hub_node = g.LGA_NODE;
-
+		
+		System.out.println(hub_node);
+		System.out.println(hub_node.getId());
+		System.out.println(hub_node.getId()+","+hub_node.getLat()+","+hub_node.getLon());
+				
 		System.out.println("Graph filling started at"+ LocalDateTime.now() );
 		//Construct Graph
 		DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge> gr_t = new  
 				DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge>(DefaultWeightedEdge.class);
-
-
-		LinkedList<GraphNode> ntw_nodes =  new LinkedList<GraphNode>();
-
 
 		ListIterator<GraphNode> nodeIterator_t = nodes.listIterator();
 		//Adding vertices
@@ -95,7 +105,7 @@ public class RoadGraphGenerator {
 
 		System.out.println("Serialization started at"+ LocalDateTime.now() );
 
-		ObjectOutputStream oos_graph = new ObjectOutputStream(new FileOutputStream("ObjectWarehouse/SpeedLimtGraphHashed.obj"));
+		ObjectOutputStream oos_graph = new ObjectOutputStream(new FileOutputStream("ObjectWarehouse/SpeedLimtGraphHashed_XXX.obj"));
 		oos_graph.writeObject(gr_t);
 		oos_graph.close();
 	}

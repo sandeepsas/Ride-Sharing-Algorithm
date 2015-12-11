@@ -52,6 +52,7 @@ public class ShareabilityGraph {
 		// TripDataHandler tHandler = new TripDataHandler();
 
 		Map<String, List<Pair<String, String>>> dropOffMap = tripLoader.getDropOffMap();
+		Map<String, List<Pair<String, String>>> intrMap = tripLoader.getIntrMap();
 		Map<String, Pair<Double, Double>> vertexMap = tripLoader.getVertexMap();
 		Map<String, String> dtMap = tripLoader.getDTMap();
 		// Fetch possible drop-off points for trip A
@@ -79,9 +80,17 @@ public class ShareabilityGraph {
 		driving_time_to_dest_B = driving_time_to_dest_B * travel_time_correction_ratio;
 
 		// Drop-off points compuatations
-		List<Pair<String, String>> dropOffPoints_A = dropOffMap.get(OSM_dest_A.linearID.trim());
-		// CheckTripMergeable.LOGGER.info("No of dropoff point for trip A =
-		// "+dropOffPoints_A.size());
+		List<Pair<String, String>> dropOffPoints_A = intrMap.get(OSM_dest_A.linearID.trim());
+		if(dropOffPoints_A.isEmpty()){
+			dropOffPoints_A = dropOffMap.get(OSM_dest_A.linearID.trim());
+		}
+		List<Pair<String, String>> dropOffPoints_B = intrMap.get(OSM_dest_B.linearID.trim());
+		if(dropOffPoints_B.isEmpty()){
+			dropOffPoints_B = dropOffMap.get(OSM_dest_B.linearID.trim());
+		}
+		CheckTripMergeable.LOGGER.info("dropoff for trip A ="+dropOffPoints_A.size());
+		CheckTripMergeable.LOGGER.info("dropoff for trip B ="+dropOffPoints_B.size());
+		
 		Iterator<Pair<String, String>> d_A_itr = dropOffPoints_A.iterator();
 
 		List<Pair<String, String>> possible_dropoffs_A = new ArrayList<Pair<String, String>>();
@@ -112,7 +121,7 @@ public class ShareabilityGraph {
 		DefaultDirectedWeightedGraph<GraphNode, DefaultWeightedEdge> gr_t = tripLoader.getGraph();
 
 		float max_delay_trip_B = (float) (driving_time_to_dest_B * PERCENTAGE_TRIP_DELAY);
-		List<Pair<String, String>> dropOffPoints_B = dropOffMap.get(OSM_dest_B.linearID.trim());
+		
 		Iterator<Pair<String, String>> d_B_itr = dropOffPoints_B.iterator();
 		// CheckTripMergeable.LOGGER.info("No of dropoff point for trip B =
 		// "+dropOffPoints_B.size());
@@ -138,7 +147,7 @@ public class ShareabilityGraph {
 						* travel_time_correction_ratio;
 				
 				//If the walking time between any pair of nodes is higher than the driving time between the same pair
-				float walking_time_between_dA_dB = (float) (FilterFns.distFrom(drop_A.getLat(),
+/*				float walking_time_between_dA_dB = (float) (FilterFns.distFrom(drop_A.getLat(),
 						drop_A.getLon(),drop_B.getLat(), drop_B.getLon())/0.05); //(dist/speed 3mph = 0.05 mpm)
 				
 				if(walking_time_between_dA_dB > driving_time_from_dropoff_B_to_dropoff_A){
@@ -153,10 +162,10 @@ public class ShareabilityGraph {
 						+ drop_B.getId() + " ( Destination - " + OSM_dest_B.linearID + " )");
 						return true;
 					}
-				}
+				}*/
 
 				float lhs = driving_time_from_dropoff_B_to_dropoff_A + walking_time_to_dest_B - driving_time_to_dest_B;
-				if (lhs < max_delay_trip_B) {
+				if (lhs <= max_delay_trip_B) {
 					result = true;
 					merge_trips_writer.println("MERGEABLE PAIR => " + trip_A + " can be dropped at " + drop_A.getId()
 							+ " (Destination - " + OSM_dest_A.linearID + " )" + " and " + trip_B + " can be dropped at "

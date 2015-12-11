@@ -70,6 +70,18 @@ public class FilterFunctions {
 		return (lat_check && lon_check);
 		
 	}
+	public static boolean inManhattanBoundingBox(double lat1, double lng1){
+		double north_lat = 40.882214;
+		double south_lat = 40.680396;
+		double east_lon = -73.907000 ;
+		double west_lon = -74.047285;
+		
+		boolean lat_check = (lat1 <north_lat && lat1 >south_lat);
+		boolean lon_check = (lng1 >west_lon && lng1 <east_lon);
+		
+		return (lat_check && lon_check);
+		
+	}
 /*For data integrity*/
 	
 	public static boolean isMedallion(String medallion)

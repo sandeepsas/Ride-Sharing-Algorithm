@@ -30,6 +30,7 @@ import Trip.TaxiTrip;
 public class TripLoader {
 
 	private Map<String, List<Pair<String,String>>> dropOffMap; 
+	private Map<String, List<Pair<String,String>>> intrMap; 
 	private Map<String, Pair<Double,Double>> vertexMap; 
 	private Map<String, String> DTMap; 
 
@@ -52,7 +53,7 @@ public class TripLoader {
 		//Constructor - Loads Dropoffs as HashMaps
 		dropOffMap = new HashMap<String, List<Pair<String,String>>>();
 
-		BufferedReader bf = new BufferedReader(new FileReader("ObjectWarehouse/BFSMap.csv"));
+		BufferedReader bf = new BufferedReader(new FileReader("ObjectWarehouse/BFSMap_v1.csv"));
 		String s = new String();
 
 		while((s=bf.readLine())!=null &&
@@ -67,9 +68,27 @@ public class TripLoader {
 			dropOffMap.put(key[0].trim(), drop_list);
 		}
 		bf.close();
+		//Constructor - Loads Intersection as HashMaps
+		intrMap = new HashMap<String, List<Pair<String,String>>>();
+
+		BufferedReader bfi = new BufferedReader(new FileReader("ObjectWarehouse/IntrMap_v1.csv"));
+		String si = new String();
+
+		while((si=bfi.readLine())!=null &&
+				(si.length()!=0) ){
+			String[] split_readline = si.split(",");
+			List<Pair<String,String>> intr_list = new ArrayList<Pair<String,String>>();
+			for(int i=1; i<split_readline.length-1;i++){
+				String[] sub_split = split_readline[i].split("->");
+				intr_list.add(new Pair<String,String>(sub_split[0].trim(),sub_split[1].trim()));
+			}
+			String[] key = split_readline[0].split("->");
+			intrMap.put(key[0].trim(), intr_list);
+		}
+		bfi.close();
 		//Load Vertex Map
 		vertexMap = new HashMap<String, Pair<Double,Double>>();
-		bf = new BufferedReader(new FileReader("ObjectWarehouse/VertexMap.csv"));
+		bf = new BufferedReader(new FileReader("ObjectWarehouse/VertexMap_v1.csv"));
 		s = new String();
 		while((s=bf.readLine())!=null &&
 				(s.length()!=0) ){
@@ -85,21 +104,21 @@ public class TripLoader {
 		bf.close();
 		// Load ShortestPath Map
 		DTMap = new HashMap<String, String>();
-		bf = new BufferedReader(new FileReader("ObjectWarehouse/NYCF_LGA_SP.csv"));
+		bf = new BufferedReader(new FileReader("ObjectWarehouse/TravelTimeMap_v1.csv"));
 		s = new String();
 		bf.readLine();// header eliminate
 		while((s=bf.readLine())!=null &&
 				(s.length()!=0) ){
 			String[] split_readline = s.split(",");
-			String key = split_readline[2].trim();
-			String val = split_readline[6].trim();
+			String key = split_readline[0].trim();
+			String val = split_readline[1].trim();
 			DTMap.put(key,val );
 		}
 
 		bf.close();
 		// Load the Graph
 		//Construct Graph
-		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/SpeedLimtGraphHashed.obj"));
+		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/SpeedLimtGraphHashed_v1.obj"));
 		gr_t = new  DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		gr_t =  (DefaultDirectedWeightedGraph<GraphNode, DefaultWeightedEdge>) oos_graph_read.readObject();
 		oos_graph_read.close();
@@ -107,6 +126,9 @@ public class TripLoader {
 
 	public Map<String, List<Pair<String, String>>>  getDropOffMap(){
 		return this.dropOffMap;
+	}
+	public Map<String, List<Pair<String, String>>>  getIntrMap(){
+		return this.intrMap;
 	}
 	public Map<String, Pair<Double, Double>>  getVertexMap(){
 		return this.vertexMap;

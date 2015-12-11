@@ -27,7 +27,7 @@ public class BFSGenerator {
 		XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 		factory.setNamespaceAware(true);
 		XmlPullParser xpp = factory.newPullParser();
-		xpp.setInput ( new FileReader ("OSMData/NYCRoadsF.osm"));
+		xpp.setInput ( new FileReader ("OSMData/NYCOSM.osm"));
 
 		//xpp.setInput ( new FileReader ("OSMData/NYC_sample.osm"));
 		g.osmGraphParser(xpp);
@@ -95,7 +95,7 @@ public class BFSGenerator {
 
 		System.out.println("Serialization started at"+ LocalDateTime.now() );
 
-		ObjectOutputStream oos_graph = new ObjectOutputStream(new FileOutputStream("ObjectWarehouse/WalkLimitGraphHashed.obj"));
+		ObjectOutputStream oos_graph = new ObjectOutputStream(new FileOutputStream("ObjectWarehouse/WalkLimitGraphHashed_v1.obj"));
 		oos_graph.writeObject(gr_t);
 		oos_graph.close();
 	}

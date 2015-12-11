@@ -303,4 +303,121 @@ public class RoadGraph {
 		}
 	}
 
+	public LinkedList<GraphNode> osmIntersectionParser(XmlPullParser xrp) throws XmlPullParserException, IOException {
+		// TODO Auto-generated method stub
+		double hub_dist = Double.MAX_VALUE;
+		boolean ret = false;
+		boolean lga_node_set = false;
+		boolean isOsmData = false;	
+		GraphNode tempNode = new GraphNode();					
+		GraphNode NULL_NODE = new GraphNode();					
+		GraphWay tempWay = new GraphWay();						
+		GraphWay NULL_WAY = new GraphWay();						
+		LinkedList<GraphNode> allNodes = new LinkedList<GraphNode>();	
+		LinkedList<GraphWay> allWays = new LinkedList<GraphWay>();		
+
+		if(xrp == null){
+			return null;
+		}
+
+		xrp.next();
+		int eventType = xrp.getEventType();
+		while (eventType != XmlPullParser.END_DOCUMENT) {
+			switch(eventType){
+			case XmlPullParser.START_DOCUMENT:
+				break;
+			case XmlPullParser.START_TAG:
+				String xrp_name = xrp.getName();
+				if(xrp.getName().equals("osm")){
+					isOsmData = true;
+				}else {
+					int attributeCount = xrp.getAttributeCount();
+					if(xrp.getName().equals("node")){
+						tempNode = new GraphNode();
+						for(int i = 0; i < attributeCount; i++){
+							if(xrp.getAttributeName(i).equals("id")){
+								tempNode.setId(Long.parseLong(xrp.getAttributeValue(i)));			
+							} if(xrp.getAttributeName(i).equals("lat")){
+								tempNode.setLat(Double.parseDouble(xrp.getAttributeValue(i)));	
+							} if(xrp.getAttributeName(i).equals("lon")){
+								tempNode.setLon(Double.parseDouble(xrp.getAttributeValue(i)));	
+							}
+						}
+
+					}
+					else if(xrp.getName().equals("tag")){
+						if(tempNode == NULL_NODE)	{
+							for(int i = 0; i < attributeCount; i++){
+								if(xrp.getAttributeName(i).equals("k")
+										&& xrp.getAttributeValue(i).equals("highway")){		
+									String v = xrp.getAttributeValue(i + 1);
+									tempWay.setType(v);
+									tempWay.setSpeedMax(OsmConstants.roadTypeToSpeed(v));
+								} else if(xrp.getAttributeName(i).equals("k")
+										&& xrp.getAttributeValue(i).equals("name")){	
+									String v = xrp.getAttributeValue(i + 1);
+									tempWay.setName(v);
+								} else if(xrp.getAttributeName(i).equals("k")
+										&& xrp.getAttributeValue(i).equals("other_tags")){	
+									String v = xrp.getAttributeValue(i + 1);
+									OtherTags ot = parseOtherTags(v);
+									tempWay.setOtherTags(v);
+									tempWay.setOneway(ot.isOneWay);
+									if(ot.maxspeed != -1){
+										tempWay.setSpeedMax(ot.maxspeed);
+									}
+								}
+							}
+						}
+					}else if(xrp.getName().equals("way")){							
+						tempWay = new GraphWay();
+						for(int i = 0; i < attributeCount; i++){
+							if(xrp.getAttributeName(i).equals("id")){
+								tempWay.setId(Long.parseLong(xrp.getAttributeValue(i)));
+							}
+						}	
+					} else if(xrp.getName().equals("nd")){										
+						for(int i = 0; i < attributeCount; i++){
+							if(xrp.getAttributeName(i).equals("ref")){							
+								String v = xrp.getAttributeValue(i);
+								long ref = Long.parseLong(v);
+								tempWay.addRef(ref);
+							}
+						}
+					}
+				}
+				break;
+			case XmlPullParser.END_TAG:
+				if(isOsmData){
+					if(xrp.getName().equals("osm")){
+						ret = true;
+					} else if(xrp.getName().equals("node")){						
+						allNodes.add(tempNode);
+
+/*						double latti = tempNode.getLat();
+						double longi = tempNode.getLon();
+						double disti = distanceInMilesBetweenPoints(OsmConstants.LaG_lat, OsmConstants.LaG_lng, latti, longi);
+						if(disti< hub_dist)
+						{
+							LGA_NODE = tempNode;
+							hub_dist = disti;
+						}*/
+						tempNode = NULL_NODE;		
+					} else if(xrp.getName().equals("tag")){							
+
+					} else if(xrp.getName().equals("way")){							
+						allWays.add(tempWay);
+						tempWay = NULL_WAY;
+					} else if(xrp.getName().equals("nd")){							
+
+					}
+				}
+				break;
+			}
+			eventType = xrp.next();
+		}
+		return allNodes;
+
+	}
+
 }
