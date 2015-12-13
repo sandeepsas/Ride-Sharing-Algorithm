@@ -15,7 +15,7 @@ public class OsmConstants {
 			"highway" = "residential" OR
 			"highway" = "unclassified" OR
 			"highway" = "road" OR
-			"highway" = "living street" 
+			"highway" = "living street" OR
 			"highway" = "motorway" OR
 			"highway" = "motorway_link" OR
 			"highway" = "trunk" OR

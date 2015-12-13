@@ -1,31 +1,32 @@
 /*
- * This class checks if a pair of trips are mergeable or not
- * 
- * @Author: Sandeep Sasidharan
- */
-package StartHere;
+ * Reduction in the number of trips (X) as a function of the % of passengers willing 
+ * to ride-share (assume that max walk-time is Gaussian, with an avg of 5 mins; 
+ * and max delay is Guassian with an avg of 10% of shortest path to destination).
+ * */
+package PlotGenerators;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import java.util.*;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 
 import Graph.Pair;
 import Graph.ShareabilityGraph;
+import StartHere.CheckTripMergeable;
 import Trip.Constants;
 import Trip.TaxiTrip;
 import Trip.TripLoader;
 
-public class CheckTripMergeable {
-	public static final Logger LOGGER = Logger.getLogger(CheckTripMergeable.class.getName());
-
+public class Plot1 {
+	
+	
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
 
 		PrintWriter merge_trips_writer = new PrintWriter(new File ("MergeableTrips_set_15_v2.txt"));
@@ -34,8 +35,8 @@ public class CheckTripMergeable {
 		merge_trips_writer.println("************************************* \n");
 
 		// Read Trip between 2013-01-01 08:50:00 and 2013-01-01 08:55:00
-		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-12-05 08:30:00");
-		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-12-05 08:40:00");
+		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-12-11 12:00:00");
+		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-12-11 12:05:00");
 		List<TaxiTrip>  trips = loadTrips(startTime,endTime);
 		CheckTripMergeable.LOGGER.info("Total No of trips in the pool = "+trips.size());
 		
@@ -133,5 +134,3 @@ public class CheckTripMergeable {
 	}
 
 }
-
-

@@ -1,4 +1,4 @@
-package StartHere;
+package Generator;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -15,29 +15,30 @@ import java.util.Set;
 
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.traverse.BreadthFirstIterator;
+import org.jgrapht.graph.SimpleWeightedGraph;
 import org.jgrapht.traverse.ClosestFirstIterator;
-import org.jgrapht.traverse.GraphIterator;
 
 import Graph.GraphNode;
-import Graph.Pair;
-import Trip.KdTree;
 
-public class AlgorithmMain {
-
+public class WalkableIntersectionExtractor {
+	
 	public static void main(String[] args0) throws FileNotFoundException, IOException, ClassNotFoundException{
 
-		PrintWriter DropOffPoints = new PrintWriter("ObjectWarehouse/IntrMap_v1_6min.csv");
+		PrintWriter DropOffPoints = new PrintWriter("ObjectWarehouse/UnIntrMap_v1_6min.csv");
 
 		System.out.println("De-Serialization started at"+ LocalDateTime.now() );
 
-		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/WalkLimitGraphHashed_v1.obj"));
+		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/UnDirectedWalkLimitGraphHashed_v1.obj"));
 
 		//Construct Graph
-		DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge> gr_t = new  
+		/*DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge> gr_t = new  
 				DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge>(DefaultWeightedEdge.class);
 
-		gr_t =  (DefaultDirectedWeightedGraph<GraphNode, DefaultWeightedEdge>) oos_graph_read.readObject();
+		gr_t =  (DefaultDirectedWeightedGraph<GraphNode, DefaultWeightedEdge>) oos_graph_read.readObject();*/
+		SimpleWeightedGraph <GraphNode,DefaultWeightedEdge> gr_t = new  
+				SimpleWeightedGraph <GraphNode,DefaultWeightedEdge>(DefaultWeightedEdge.class);
+
+		gr_t =  (SimpleWeightedGraph<GraphNode, DefaultWeightedEdge>) oos_graph_read.readObject();
 		oos_graph_read.close();
 
 		List<String>listIntersections = new ArrayList<String>();
@@ -94,4 +95,3 @@ public class AlgorithmMain {
 	}
 
 }
-
